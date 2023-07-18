@@ -2,3 +2,21 @@
 
 DOTS_REPO=git@github.com:subado/dots
 DOTS_GIT_DIR=.cfg
+
+mv_if_exist() {
+	[ -e "$1" ] && mv "$1" "$2/${1##*/}"
+}
+
+mv_if_set() {
+	[ "$1" ] && mv_if_exist "$2" "$1"
+}
+
+after_clone() {
+	. "$1/.profile"
+	mv_if_exist "$HOME/.ssh" "${XDG_DATA_HOME:-$HOME/.local/share}/.ssh"
+	mv_if_set "$CARGO_HOME" "$HOME/.cargo"
+	mv_if_set "$GNUPGHOME" "$HOME/.gnupg"
+	mv_if_set "$GOMODCACHE" "$HOME/go/mod"
+	mv_if_set "$GOPATH" "$HOME/go"
+	mv_if_set "$TASKDATA" "$HOME/.task"
+}

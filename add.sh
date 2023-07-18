@@ -28,7 +28,7 @@ validate_distro() {
 		[ "$INSTALL" ] || INSTALL="$install_cmd"
 		;;
 	*)
-		exit 1
+		return 1
 		;;
 	esac
 }
@@ -85,12 +85,23 @@ install_pkgs() {
 	done
 }
 
+after_clone() {
+	return $?
+}
+
 clone_dots() {
 	temp=$(su -c "mktemp -d" "$user")
 	su -c "git clone --depth=1 $DOTS_REPO $temp" "$user"
+	after_clone "$temp"
 	[ "$DOTS_GIT_DIR" ] && su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
-	{ su -c "cp -al $temp \$HOME" "$user" >/dev/null 2>&1 && su -c "rm -rf $temp" "$user"; } ||
-		{ su -c "rsync -a --remove-source-files $temp/ \$HOME/" "$user" && find "$temp" -depth -type d -empty -delete; }
+	{
+		su -c "cp -al $temp \$HOME" "$user" >/dev/null 2>&1 &&
+			su -c "rm -rf $temp" "$user"
+	} ||
+	{
+		su -c "rsync -a --remove-source-files $temp/ \$HOME/" "$user" &&
+			find "$temp" -depth -type d -empty -delete
+	}
 }
 
 [ -r conf ] && . ./conf                                                                       # Get config
@@ -123,6 +134,7 @@ done
 user="$1"
 [ "$user" ] || die "missing user operand"
 shift
+HOME="$(getent passwd "$user" | cut -d: -f6)"
 
 [ "$(id -u)" -ne 0 ] && die "run script as root"
 
