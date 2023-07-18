@@ -103,6 +103,7 @@ clone_dots() {
 		done <<-_EOF
 			$(find "$temp" -maxdepth 1 | tail -n +2)
 		_EOF
+		rmdir "$temp"
 	} ||
 	{
 		rsync -a --remove-source-files "$temp/" "$HOME/" &&
