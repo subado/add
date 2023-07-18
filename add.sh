@@ -93,8 +93,8 @@ clone_dots() {
 	set -e
 	temp=$(su -c "mktemp -d" "$user")
 	su -c "git clone --recurse-submodules --depth=1 $DOTS_REPO $temp" "$user"
-	after_clone "$temp"
 	set +e
+	after_clone "$temp"
 	[ "$DOTS_GIT_DIR" ] && su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	{
 		while read -r file; do
