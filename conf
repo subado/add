@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+DOTS_REPO=git@github.com:subado/dots
+DOTS_GIT_DIR=.cfg

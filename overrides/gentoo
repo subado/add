@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+install() {
+	if [ $# -ne 1 ]; then
+		mkdir -p "/etc/portage/package.use/${1%*/}"
+		IFS=' ' printf '%s\n ' "$*" >>"/etc/portage/package.use/$1"
+	fi
+	eval "$INSTALL $1" || installfail "$1" || exit 1
+}
+
+installfail() {
+	autounmask_file='/etc/portage/package.accept_keywords/zzz_autounmask'
+	[ -f "$autounmask_file" ] || touch "$autounmask_file"
+
+	set -e
+	emerge --autounmask --autounmask-continue "$1"
+	mkdir -p "/etc/portage/package.accept_keywords/${1%*/}"
+	mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
+	"$INSTALL" "$1"
+	set +e
+}

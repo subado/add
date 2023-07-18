@@ -1,0 +1,6 @@
+base-system
+base-devel
+chrony
+git
+curl
+rsync

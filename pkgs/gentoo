@@ -1,0 +1,28 @@
+sys-process/btop
+dev-lang/rust
+dev-util/ccache
+dev-util/git-delta
+app-text/dictd
+sys-devel/distcc
+dev-util/github-cli
+dev-lang/go
+net-ftp/ftp
+sys-devel/make
+dev-util/meson
+app-misc/neofetch
+app-editors/neovim
+net-analyzer/netcat
+net-analyzer/nmap
+app-misc/nnn
+net-libs/nodejs npm
+app-admin/doas
+dev-lang/php
+dev-python/pip
+sys-apps/ripgrep
+dev-lang/php cli
+app-shells/starship
+app-misc/taskd
+app-misc/tmux
+net-ftp/vsftpd
+net-misc/wget
+app-arch/zip
