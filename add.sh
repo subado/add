@@ -90,9 +90,11 @@ after_clone() {
 }
 
 clone_dots() {
+	set -e
 	temp=$(su -c "mktemp -d" "$user")
 	su -c "git clone --depth=1 $DOTS_REPO $temp" "$user"
 	after_clone "$temp"
+	set +e
 	[ "$DOTS_GIT_DIR" ] && su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	{
 		su -c "cp -al $temp \$HOME" "$user" >/dev/null 2>&1 &&
