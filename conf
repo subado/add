@@ -13,7 +13,7 @@ mv_if_set() {
 
 after_clone() {
 	. "$1/.profile"
-	mv_if_exist "$HOME/.ssh" "${XDG_DATA_HOME:-$HOME/.local/share}/.ssh"
+	mv_if_exist "$HOME/.ssh" "${XDG_DATA_HOME:-$HOME/.local/share}"
 	mv_if_set "$CARGO_HOME" "$HOME/.cargo"
 	mv_if_set "$GNUPGHOME" "$HOME/.gnupg"
 	mv_if_set "$GOMODCACHE" "$HOME/go/mod"
