@@ -13,7 +13,14 @@ mv_if_set() {
 
 after_clone() {
 	. "$1/.profile"
-	mv_if_exist "$HOME/.ssh" "${XDG_DATA_HOME:-$HOME/.local/share}"
+
+	while read -r sl; do
+		file="$HOME/${sl#"$1/"}"
+		[ -e "$file" ] && mv "$file" "$HOME/$(readlink "$sl")"
+	done <<-_EOF
+		$(find "$1" -type l)
+	_EOF
+
 	mv_if_set "$CARGO_HOME" "$HOME/.cargo"
 	mv_if_set "$GNUPGHOME" "$HOME/.gnupg"
 	mv_if_set "$GOMODCACHE" "$HOME/go/mod"
