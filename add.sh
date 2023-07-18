@@ -17,7 +17,7 @@ die() {
 
 usage() {
 	cat <<-_EOF
-		usage: ${BOLD}$PROGRAM${NORMAL} [-h, --noinstall] [ ${ITALIC}OPTIONS${NORMAL} ]
+		usage: ${BOLD}$PROGRAM${NORMAL} [-h, --no-install] [ ${ITALIC}OPTIONS${NORMAL} ]
 	_EOF
 }
 
@@ -112,7 +112,7 @@ clone_dots() {
 }
 
 [ -r conf ] && . ./conf                                                                       # Get config
-eval set -- "$("$GETOPT" -o hd:i:n -l help,distro:,install:,noinstall -n "$PROGRAM" -- "$@")" # Get opts
+eval set -- "$("$GETOPT" -o hd:i: -l help,distro:,install:,no-install,no-dots -n "$PROGRAM" -- "$@")" # Get opts
 
 while true; do
 	case $1 in
@@ -127,8 +127,12 @@ while true; do
 		INSTALL=$1
 		shift
 		;;
-	-n | --noinstall)
+	--no-install)
 		noinstall=1
+		shift
+		;;
+	--no-dots)
+		nodots=1
 		shift
 		;;
 	--)
@@ -154,4 +158,4 @@ get_overrides # Get overrides specified for current distro
 [ "$noinstall" ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}" "${PKGS:=pkgs/$DISTRO}"
 
 # Clone dots repo
-[ "$DOTS_REPO" ] && clone_dots
+[ "$nodots" ] || [ "$DOTS_REPO" ] && clone_dots
