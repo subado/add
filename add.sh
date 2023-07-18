@@ -92,17 +92,21 @@ after_clone() {
 clone_dots() {
 	set -e
 	temp=$(su -c "mktemp -d" "$user")
-	su -c "git clone --depth=1 $DOTS_REPO $temp" "$user"
+	su -c "git clone --recurse-submodules --depth=1 $DOTS_REPO $temp" "$user"
 	after_clone "$temp"
 	set +e
 	[ "$DOTS_GIT_DIR" ] && su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	{
-		su -c "cp -al $temp \$HOME" "$user" >/dev/null 2>&1 &&
-			su -c "rm -rf $temp" "$user"
+		while read -r file; do
+		cp -al "$file" "$HOME" >/dev/null 2>&1 &&
+			rm -rf "$file" || exit 1
+		done <<-_EOF
+			$(find "$temp" -maxdepth 1 | tail -n +2)
+		_EOF
 	} ||
 	{
-		su -c "rsync -a --remove-source-files $temp/ \$HOME/" "$user" &&
-			find "$temp" -depth -type d -empty -delete
+		rsync -a --remove-source-files "$temp/" "$HOME/" &&
+			find "$temp" -depth -type d -empty -delete || exit 1
 	}
 }
 
