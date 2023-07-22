@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 DOTS_REPO=git@github.com:subado/dots
-DOTS_GIT_DIR=.cfg
+DOTS_GIT_DIR=.cfg/.git
 
 mv_if_exist() {
 	[ -e "$1" ] && mv "$1" "$2/${1##*/}"

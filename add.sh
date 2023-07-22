@@ -15,6 +15,8 @@ die() {
 	exit 1
 }
 
+[ "$(id -u)" -ne 0 ] && die "run script as root"
+
 usage() {
 	cat <<-_EOF
 		usage: ${BOLD}$PROGRAM${NORMAL} [-h, --no-install] [ ${ITALIC}OPTIONS${NORMAL} ]
@@ -52,7 +54,7 @@ set_distro_specific() {
 	done <distros
 
 	[ "$DISTRO" ] || die "Can't identify current distribution, set DISTRO manually"
-	[ "$INSTALL" ] || die "'DISTRO not match to any install command, set INSTALL manually"
+	[ "$INSTALL" ] || die "DISTRO not match to any install command, set INSTALL manually"
 }
 
 get_overrides() {
@@ -94,24 +96,29 @@ clone_dots() {
 	temp=$(su -c "mktemp -d" "$user")
 	su -c "git clone --recurse-submodules --depth=1 $DOTS_REPO $temp" "$user"
 	set +e
+
 	after_clone "$temp"
-	[ "$DOTS_GIT_DIR" ] && su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
+	if [ "$DOTS_GIT_DIR" ]; then
+		su -c "mkdir -p $temp/${DOTS_GIT_DIR##*/}" "$user"
+		su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
+	fi
+
 	{
 		while read -r file; do
-		cp -al "$file" "$HOME" >/dev/null 2>&1 &&
-			rm -rf "$file" || exit 1
+			cp -al "$file" "$HOME" >/dev/null 2>&1 &&
+				rm -rf "$file" || exit 1
 		done <<-_EOF
 			$(find "$temp" -maxdepth 1 | tail -n +2)
 		_EOF
 		rmdir "$temp"
 	} ||
-	{
-		rsync -a --remove-source-files "$temp/" "$HOME/" &&
-			find "$temp" -depth -type d -empty -delete || exit 1
-	}
+		{
+			rsync -a --remove-source-files "$temp/" "$HOME/" &&
+				find "$temp" -depth -type d -empty -delete || exit 1
+		}
 }
 
-[ -r conf ] && . ./conf                                                                       # Get config
+[ -r conf ] && . ./conf                                                                               # Get config
 eval set -- "$("$GETOPT" -o hd:i: -l help,distro:,install:,no-install,no-dots -n "$PROGRAM" -- "$@")" # Get opts
 
 while true; do
@@ -147,8 +154,6 @@ user="$1"
 shift
 HOME="$(getent passwd "$user" | cut -d: -f6)"
 
-[ "$(id -u)" -ne 0 ] && die "run script as root"
-
 if [ "$DISTRO" = "" ] || [ "$INSTALL" = "" ]; then
 	set_distro_specific # Set distro specific
 fi
@@ -158,4 +163,4 @@ get_overrides # Get overrides specified for current distro
 [ "$noinstall" ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}" "${PKGS:=pkgs/$DISTRO}"
 
 # Clone dots repo
-[ "$nodots" ] || [ "$DOTS_REPO" ] && clone_dots
+[ "$nodots" ] || { [ "$DOTS_REPO" ] && clone_dots; }
