@@ -12,8 +12,6 @@ mv_if_set() {
 }
 
 after_clone() {
-	. "$1/.profile"
-
 	while read -r sl; do
 		file="$HOME/${sl#"$1/"}"
 		[ -e "$file" ] && mv "$file" "$HOME/$(readlink "$sl")"
