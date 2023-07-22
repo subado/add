@@ -106,7 +106,7 @@ clone_dots() {
 
 	{
 		while read -r file; do
-			cp -al "$file" "$HOME" >/dev/null 2>&1 &&
+			cp -fal "$file" "$HOME" >/dev/null 2>&1 &&
 				rm -rf "$file" || exit 1
 		done <<-_EOF
 			$(find "$temp" -maxdepth 1 | tail -n +2)
