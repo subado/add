@@ -1,11 +1,14 @@
 #!/usr/bin/env sh
 
 install() {
-	if [ $# -ne 1 ]; then
+	if [ $# -gt 1 ]; then
 		mkdir -p "/etc/portage/package.use/${1%*/}"
 		IFS=' ' printf '%s\n ' "$*" >>"/etc/portage/package.use/$1"
+		shift $(($# - 1))
 	fi
-	eval "$INSTALL $1" || installfail "$1" || exit 1
+	log="$(mktemp)"
+	eval "$INSTALL $1" > "$log" 2>&1  || installfail "$1" "$log" || exit 1
+	rm "$log"
 }
 
 installfail() {
@@ -13,9 +16,14 @@ installfail() {
 	[ -f "$autounmask_file" ] || touch "$autounmask_file"
 
 	set -e
-	emerge --autounmask --autounmask-continue "$1"
-	mkdir -p "/etc/portage/package.accept_keywords/${1%*/}"
-	mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
+	case "$(cat "$2")" in
+		*"MASKED PACKAGES"*)
+			emerge --autounmask --autounmask-continue "$1"
+			mkdir -p "/etc/portage/package.accept_keywords/${1%*/}"
+			mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
+			;;
+	esac
+
 	"$INSTALL" "$1"
 	set +e
 }
