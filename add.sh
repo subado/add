@@ -97,11 +97,12 @@ clone_dots() {
 	su -c "git clone --recurse-submodules --depth=1 $DOTS_REPO $temp" "$user"
 	set +e
 
-	after_clone "$temp"
 	if [ "$DOTS_GIT_DIR" ]; then
 		su -c "mkdir -p $temp/${DOTS_GIT_DIR##*/}" "$user"
 		su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	fi
+
+	after_clone "$temp"
 
 	{
 		while read -r file; do
@@ -116,6 +117,7 @@ clone_dots() {
 			rsync -a --remove-source-files "$temp/" "$HOME/" &&
 				find "$temp" -depth -type d -empty -delete || exit 1
 		}
+
 }
 
 [ -r conf ] && . ./conf                                                                               # Get config
