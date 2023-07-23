@@ -94,13 +94,15 @@ after_clone() {
 clone_dots() {
 	set -e
 	temp=$(su -c "mktemp -d" "$user")
-	su -c "git clone --recurse-submodules --depth=1 $DOTS_REPO $temp" "$user"
+	su -c "git clone --depth=${DOTS_CLONE_DEPTH:-10} $DOTS_REPO $temp" "$user"
 	set +e
 
 	if [ "$DOTS_GIT_DIR" ]; then
 		su -c "mkdir -p $temp/${DOTS_GIT_DIR##*/}" "$user"
 		su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	fi
+
+	su -c "git -C '$temp' submodule update --init --recursive" "$user"
 
 	after_clone "$temp"
 
