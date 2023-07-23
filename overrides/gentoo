@@ -7,7 +7,7 @@ install() {
 		shift $(($# - 1))
 	fi
 	log="$(mktemp)"
-	eval "$INSTALL $1" > "$log" 2>&1  || installfail "$1" "$log" || exit 1
+	eval "$INSTALL $1" >"$log" 2>&1 || installfail "$1" "$log" || exit 1
 	rm "$log"
 }
 
@@ -15,15 +15,16 @@ installfail() {
 	autounmask_file='/etc/portage/package.accept_keywords/zzz_autounmask'
 	[ -f "$autounmask_file" ] || touch "$autounmask_file"
 
-	set -e
 	case "$(cat "$2")" in
-		*"MASKED PACKAGES"*)
-			emerge --autounmask --autounmask-continue "$1"
-			mkdir -p "/etc/portage/package.accept_keywords/${1%*/}"
-			mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
-			;;
+	*"MASKED PACKAGES"* | *"autounmask"* | *"masked"*)
+		emerge --autounmask --autounmask-continue "$1"
+		mkdir -p "/etc/portage/package.accept_keywords/${1%*/}"
+		mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
+		;;
+	*)
+		return 1
+		;;
 	esac
 
-	"$INSTALL" "$1"
-	set +e
+	"$INSTALL" "$1" || return 1
 }
