@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
-DOTS_REPO=git@github.com:subado/dots
-DOTS_GIT_DIR=.cfg/.git
+DOTS_REPO='git@github.com:subado/dots'
+DOTS_GIT_DIR='.cfg/.git'
 
 mv_if_exist() {
 	[ -e "$1" ] && mv "$1" "$2/${1##*/}"
@@ -12,6 +12,8 @@ mv_if_set() {
 }
 
 after_clone() {
+	[ -r "$1/.profile" ] && . "$1/.profile"
+
 	while read -r sl; do
 		file="$HOME/${sl#"$1/"}"
 		[ -e "$file" ] && mv "$file" "$HOME/$(readlink "$sl")"
