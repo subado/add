@@ -98,7 +98,7 @@ clone_dots() {
 	set +e
 
 	if [ "$DOTS_GIT_DIR" ]; then
-		su -c "mkdir -p $temp/${DOTS_GIT_DIR##*/}" "$user"
+		su -c "mkdir -p $temp/${DOTS_GIT_DIR%/*}" "$user"
 		su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	fi
 
