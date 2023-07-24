@@ -12,19 +12,29 @@ install() {
 }
 
 installfail() {
-	autounmask_file='/etc/portage/package.accept_keywords/zzz_autounmask'
-	[ -f "$autounmask_file" ] || touch "$autounmask_file"
+	
+	isFixed=1
 
-	case "$(cat "$2")" in
-	*"MASKED PACKAGES"* | *"autounmask"* | *"masked"*)
-		emerge --autounmask --autounmask-continue "$1"
-		mkdir -p "/etc/portage/package.accept_keywords/${1%*/}"
-		mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
-		;;
-	*)
-		return 1
-		;;
+	case "$(emerge -s "$1")" in
+		*"$1 [ Masked ]"*)
+			autounmask_file='/etc/portage/package.accept_keywords/zzz_autounmask'
+			[ -f "$autounmask_file" ] || touch "$autounmask_file"
+			emerge --autounmask --autounmask-continue "$1"
+			mkdir -p "/etc/portage/package.accept_keywords/${1%*/}"
+			mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
+			;;
+		*)
+			isFixed=
+			;;
 	esac
+
+	if [ "$isFixed" = "" ]; then
+		case "$(cat "$2")" in
+		*)
+			return 1
+			;;
+		esac
+	fi
 
 	"$INSTALL" "$1" || return 1
 }
