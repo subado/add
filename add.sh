@@ -97,26 +97,28 @@ clone_dots() {
 	su -c "git clone --depth=${DOTS_CLONE_DEPTH:-10} $DOTS_REPO $temp" "$user"
 	set +e
 
+	su -c "git -C '$temp' config --local status.showUntrackedFiles no" "$user"
+
 	if [ "$DOTS_GIT_DIR" ]; then
 		su -c "mkdir -p $temp/${DOTS_GIT_DIR%/*}" "$user"
 		su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	fi
 
-	su -c "git -C '$temp' submodule update --init --recursive" "$user"
+	su -c "git -C '$temp' --git-dir='${DOTS_GIT_DIR:-.git}' submodule update --init --recursive" "$user"
+
 
 	after_clone "$temp"
 
 	(
 		while read -r file; do
-			cp -fal "$file" "$HOME" >/dev/null 2>&1 && rm -rf "$file" ||
-				{ rmdir "$temp" && exit 1 ;}
+			cp -fal "$file" "$HOME" >/dev/null 2>&1 && rm -rf "$file" || exit 1
 		done <<-_EOF
 			$(find "$temp" -maxdepth 1 | tail -n +2)
 		_EOF
 		rmdir "$temp"
 	) ||
 		{
-			rsync -a --remove-source-files "$temp/" "$HOME/" &&
+			rsync -a --force --remove-source-files "$temp/" "$HOME/" &&
 				find "$temp" -depth -type d -empty -delete || exit 1
 		}
 
