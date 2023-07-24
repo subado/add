@@ -1,7 +1,7 @@
 sys-process/btop
 dev-lang/rust
 dev-util/ccache
-dev-util/git-delta
+# dev-util/git-delta
 app-text/dictd
 sys-devel/distcc
 dev-util/github-cli
