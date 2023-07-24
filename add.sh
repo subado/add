@@ -123,7 +123,7 @@ clone_dots() {
 }
 
 [ -r conf ] && . ./conf                                                                               # Get config
-eval set -- "$("$GETOPT" -o hd:i: -l help,distro:,install:,no-install,no-dots -n "$PROGRAM" -- "$@")" # Get opts
+eval set -- "$("$GETOPT" -o hd:i: -l help,distro:,install:,no-base,no-pkgs,no-dots -n "$PROGRAM" -- "$@")" # Get opts
 
 while true; do
 	case $1 in
@@ -138,8 +138,12 @@ while true; do
 		INSTALL=$1
 		shift
 		;;
-	--no-install)
-		noinstall=1
+	--no-base)
+		nobase=1
+		shift
+		;;
+	--no-pkgs)
+		nopkgs=1
 		shift
 		;;
 	--no-dots)
@@ -161,10 +165,12 @@ HOME="$(getent passwd "$user" | cut -d: -f6)"
 if [ "$DISTRO" = "" ] || [ "$INSTALL" = "" ]; then
 	set_distro_specific # Set distro specific
 fi
+
+[ "$nobase"  ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}"
 get_overrides # Get overrides specified for current distro
 
 # Install packages
-[ "$noinstall" ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}" "${PKGS:=pkgs/$DISTRO}"
+[ "$nopkgs" ] || install_pkgs "${PKGS:=pkgs/$DISTRO}"
 
 # Clone dots repo
 [ "$nodots" ] || { [ "$DOTS_REPO" ] && clone_dots; }
