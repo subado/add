@@ -3,27 +3,27 @@
 DOTS_REPO='git@github.com:subado/dots'
 DOTS_GIT_DIR='.cfg/.git'
 
-mv_if_exist() {
-	[ -e "$1" ] && mv "$1" "$2/${1##*/}"
-}
-
-mv_if_set() {
-	[ "$1" ] && mv_if_exist "$2" "$1"
-}
-
 after_clone() {
-	[ -r "$1/.profile" ] && . "$1/.profile"
+	dots="$1"
+	if [ -r "$dots/.profile" ]; then
+		read -r shell <"$dots/.profile"
+		env_dump=$(eval "
+		${shell#'#!'} -c \"
+			. $dots/.profile;
+			env\"
+		")
+	fi
 
 	while read -r sl; do
-		file="$HOME/${sl#"$1/"}"
-		[ -e "$file" ] && mv "$file" "$HOME/$(readlink "$sl")"
+		file="$HOME/${sl#"$dots/"}"
+		[ -h "$file" ] || mv -f "$file" "${file%/*}/$(readlink "$sl")"
 	done <<-_EOF
-		$(find "$1" -type l)
+		"$(find "$dots" -type l)"
 	_EOF
 
-	mv_if_set "$CARGO_HOME" "$HOME/.cargo"
-	mv_if_set "$GNUPGHOME" "$HOME/.gnupg"
-	mv_if_set "$GOMODCACHE" "$HOME/go/mod"
-	mv_if_set "$GOPATH" "$HOME/go"
-	mv_if_set "$TASKDATA" "$HOME/.task"
+	set -- 'CARGO_HOME' "$HOME/.cargo" 'GNUPGHOME' "$HOME/.gnupg" 'GOMODCACHE' "$HOME/go/mod" 'GOPATH' "$HOME/go" 'TASKDATA' "$HOME/.task"
+	while [ $# -ne 0 ]; do
+		env "$env_dump" ./mv_if_set "$1" "$2"
+		shift 2
+	done
 }

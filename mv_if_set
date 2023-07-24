@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+set -x
+mv_if_exist() {
+	[ -e "$1" ] && mv "$1" "$2/${1##*/}"
+}
+eval var="\$$1"
+[ "$var" ] && mv_if_exist "$2" "$var"
