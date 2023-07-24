@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-INSTALLED_PKGS="$(qlist -I)"
+INSTALLED_PKGS="$(qlist -I)" || die "Please install app-portage/portage-utils"
 
 install() {
 	if [ $# -gt 1 ]; then

@@ -166,8 +166,10 @@ if [ "$DISTRO" = "" ] || [ "$INSTALL" = "" ]; then
 	set_distro_specific # Set distro specific
 fi
 
-[ "$nobase"  ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}"
 get_overrides # Get overrides specified for current distro
+
+# Install base packages
+[ "$nobase"  ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}"
 
 # Install packages
 [ "$nopkgs" ] || install_pkgs "${PKGS:=pkgs/$DISTRO}"
