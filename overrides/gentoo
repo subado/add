@@ -13,7 +13,7 @@ install() {
 
 installfail() {
 	
-	isFixed=1
+	is_fixed=1
 
 	case "$(emerge -s "$1")" in
 		*"$1 [ Masked ]"*)
@@ -24,11 +24,11 @@ installfail() {
 			mv "$autounmask_file" "/etc/portage/package.accept_keywords/$1"
 			;;
 		*)
-			isFixed=
+			is_fixed=
 			;;
 	esac
 
-	if [ "$isFixed" = "" ]; then
+	if [ "$is_fixed" = "" ]; then
 		case "$(cat "$2")" in
 		*)
 			return 1
