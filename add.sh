@@ -80,7 +80,7 @@ install_pkgs() {
 				;;
 			'#'* | '') continue ;;
 			esac
-			INSTALL="$cur_INSTALL" install "$opts"
+			INSTALL="$cur_INSTALL" install "$opts" "$pkg"
 			cur_INSTALL="$INSTALL"
 		done <"$1"
 		shift

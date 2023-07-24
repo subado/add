@@ -3,10 +3,9 @@
 INSTALLED_PKGS="$(qlist -I)" || die "Please install app-portage/portage-utils"
 
 install() {
-	if [ $# -gt 1 ]; then
-		mkdir -p "/etc/portage/package.use/${1%*/}"
-		IFS=' ' printf '%s\n ' "$*" >>"/etc/portage/package.use/$1"
-		shift $(($# - 1))
+	if [ "$2" ]; then
+		mkdir -p "/etc/portage/package.use/${1%/*}"
+		IFS=' ' printf '%s\n' "$*" >>"/etc/portage/package.use/$1"
 	fi
 	case "$INSTALLED_PKGS" in
 		*"$1"*)
