@@ -58,7 +58,7 @@ set_distro_specific() {
 }
 
 get_overrides() {
-	[ -r "overrides/$DISTRO" ] && . "overrides/$DISTRO"
+	[ -r "${OVERRIDES:=overrides/$DISTRO}" ] && . "$OVERRIDES"
 }
 
 installfail() {
@@ -121,9 +121,10 @@ clone_dots() {
 		}
 
 }
-
-[ -r conf ] && . ./conf                                                                               # Get config
-eval set -- "$("$GETOPT" -o hd:i: -l help,distro:,install:,no-base,no-pkgs,no-dots -n "$PROGRAM" -- "$@")" # Get opts
+# Get config
+[ -r conf ] && . ./conf
+# Get opts
+eval set -- "$("$GETOPT" -o hd:i:r:b:p:o: -l help,distro:,install:,repo-dots:,base:,pkgs:,overrides:,post:,no-base,no-pkgs,no-dots -n "$PROGRAM" -- "$@")"
 
 while true; do
 	case $1 in
@@ -136,6 +137,31 @@ while true; do
 	-i | --install)
 		shift
 		INSTALL=$1
+		shift
+		;;
+	-r | --repo-dots)
+		shift
+		DOTS_REPO=$1
+		shift
+		;;
+	-b | --base)
+		shift
+		BASEPKGS=$1
+		shift
+		;;
+	-p | --pkgs)
+		shift
+		PKGS=$1
+		shift
+		;;
+	-o | --overrides)
+		shift
+		OVERRIDES=$1
+		shift
+		;;
+	--post)
+		shift
+		POST=$1
 		shift
 		;;
 	--no-base)
@@ -177,4 +203,4 @@ get_overrides # Get overrides specified for current distro
 # Clone dots repo
 [ "$nodots" ] || { [ "$DOTS_REPO" ] && clone_dots; }
 
-[ -r 'post' ] && . post
+[ -r "${POST:=post}" ] && . "$POST"
