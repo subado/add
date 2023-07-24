@@ -203,4 +203,4 @@ get_overrides # Get overrides specified for current distro
 # Clone dots repo
 [ "$nodots" ] || { [ "$DOTS_REPO" ] && clone_dots; }
 
-[ -r "${POST:=post}" ] && . "$POST"
+[ -r "${POST:=post}" ] && . "$POST" || true
