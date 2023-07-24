@@ -74,11 +74,11 @@ install_pkgs() {
 		cur_INSTALL="$INSTALL"
 		while read -r opts pkg; do
 			case "$opts" in
-			-*)
+			'-'*)
 				cur_INSTALL="$cur_INSTALL $opts"
 				continue
 				;;
-			\#*) continue ;;
+			'#'* | '') continue ;;
 			esac
 			INSTALL="$cur_INSTALL" install "$opts"
 			cur_INSTALL="$INSTALL"
