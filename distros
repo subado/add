@@ -1,2 +1,2 @@
 void xbps-install -y
-funtoo,gentoo emerge --noreplace
+funtoo,gentoo emerge
