@@ -1,3 +1,9 @@
+net-misc/chrony
+dev-vcs/git
+net-misc/curl
+net-misc/rsync
+app-portage/gentoolkit
+
 sys-process/btop
 dev-lang/rust
 dev-util/ccache

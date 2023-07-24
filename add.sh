@@ -164,7 +164,7 @@ fi
 get_overrides # Get overrides specified for current distro
 
 # Install packages
-[ "$noinstall" ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}" "${PKGS:=pkgs/$DISTRO}"
+[ "$noinstall" ] || install_pkgs "${PKGS:=pkgs/$DISTRO}"
 
 # Clone dots repo
 [ "$nodots" ] || { [ "$DOTS_REPO" ] && clone_dots; }

@@ -1,3 +1,10 @@
+base-system
+base-devel
+chrony
+git
+curl
+rsync
+
 android-udev-rules
 breeze
 breeze-gtk
