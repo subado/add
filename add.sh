@@ -106,15 +106,15 @@ clone_dots() {
 
 	after_clone "$temp"
 
-	{
+	(
 		while read -r file; do
-			cp -fal "$file" "$HOME" >/dev/null 2>&1 &&
-				rm -rf "$file" || exit 1
+			cp -fal "$file" "$HOME" >/dev/null 2>&1 && rm -rf "$file" ||
+				{ rmdir "$temp" && exit 1 ;}
 		done <<-_EOF
 			$(find "$temp" -maxdepth 1 | tail -n +2)
 		_EOF
 		rmdir "$temp"
-	} ||
+	) ||
 		{
 			rsync -a --remove-source-files "$temp/" "$HOME/" &&
 				find "$temp" -depth -type d -empty -delete || exit 1
