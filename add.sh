@@ -43,14 +43,15 @@ set_distro_specific() {
 	done
 	command -v lsb_release >/dev/null 2>&1 && release="$release $(lsb_release -a)"
 
-	while read -r distrs install_cmd && { [ "$DISTRO" = "" ] || [ "$INSTALL" = "" ]; }; do
-		while IFS=',' read -r distr1 distr2; do
-			if validate_distro "$distr1" || { [ "$distr2" ] && validate_distro "$distr2"; }; then
+	while read -r distros install_cmd && { [ "$DISTRO" = "" ] || [ "$INSTALL" = "" ]; }; do
+		distros=$distros,
+		while [ "$distros" ]; do
+			distro=${distros%%,*}
+			distros=${distros#*,}
+			if validate_distro "$distro"; then
 				break 2
 			fi
-		done <<-_EOF
-			$distrs
-		_EOF
+		done
 	done <distros
 
 	[ "$DISTRO" ] || die "Can't identify current distribution, set DISTRO manually"
@@ -105,7 +106,6 @@ clone_dots() {
 	fi
 
 	su -c "git -C '$temp' --git-dir='${DOTS_GIT_DIR:-.git}' submodule update --init --recursive" "$user"
-
 
 	after_clone "$temp"
 
@@ -197,7 +197,7 @@ fi
 get_overrides # Get overrides specified for current distro
 
 # Install base packages
-[ "$nobase"  ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}"
+[ "$nobase" ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}"
 
 # Install packages
 [ "$nopkgs" ] || install_pkgs "${PKGS:=pkgs/$DISTRO}"
