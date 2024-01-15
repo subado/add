@@ -86,20 +86,28 @@ after_clone() {
 	return $?
 }
 
+do_as() {
+	if [ "$2" = "" ] || [ "$(whoami)" = "$2" ]; then
+		eval "$1"
+	else
+		su -c "$1" "$2"
+	fi
+}
+
 clone_dots() {
 	set -e
-	temp=$(su -c "mktemp -d" "$user")
-	su -c "git clone --depth=${DOTS_CLONE_DEPTH:-10} $DOTS_REPO $temp" "$user"
+	temp=$(do_as "mktemp -d" "$user")
+	do_as "git clone --depth=${DOTS_CLONE_DEPTH:-10} $DOTS_REPO $temp" "$user"
 	set +e
 
-	su -c "git -C '$temp' config --local status.showUntrackedFiles no" "$user"
+	do_as "git -C '$temp' config --local status.showUntrackedFiles no" "$user"
 
 	if [ "$DOTS_GIT_DIR" ]; then
-		su -c "mkdir -p $temp/${DOTS_GIT_DIR%/*}" "$user"
-		su -c "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
+		do_as "mkdir -p $temp/${DOTS_GIT_DIR%/*}" "$user"
+		do_as "mv $temp/.git $temp/$DOTS_GIT_DIR" "$user"
 	fi
 
-	su -c "git -C '$temp' --git-dir='${DOTS_GIT_DIR:-.git}' submodule update --init --recursive" "$user"
+	do_as "git -C '$temp' --git-dir='${DOTS_GIT_DIR:-.git}' submodule update --init --recursive" "$user"
 
 	after_clone "$temp"
 
@@ -153,6 +161,11 @@ while true; do
 	-o | --overrides)
 		shift
 		OVERRIDES=$1
+		shift
+		;;
+	--pre)
+		shift
+		POST=$1
 		shift
 		;;
 	--post)
