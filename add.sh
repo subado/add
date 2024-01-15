@@ -15,8 +15,6 @@ die() {
 	exit 1
 }
 
-[ "$(id -u)" -ne 0 ] && die "run script as root"
-
 usage() {
 	cat <<-_EOF
 		usage: ${BOLD}$PROGRAM${NORMAL} [-h, --no-install] [ ${ITALIC}OPTIONS${NORMAL} ]
