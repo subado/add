@@ -6,3 +6,5 @@ clang
 python
 nnn
 starship
+cmake
+make
