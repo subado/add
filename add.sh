@@ -195,7 +195,7 @@ done
 user="$1"
 [ "$user" ] || die "missing user operand"
 shift
-HOME="$(getent passwd "$user" | cut -d: -f6)"
+HOME="$(cd; pwd)"
 
 if [ "$DISTRO" = "" ] || [ "$INSTALL" = "" ]; then
 	set_distro_specific # Set distro specific
