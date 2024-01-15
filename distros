@@ -1,2 +1,3 @@
 void xbps-install -y
 funtoo,gentoo emerge
+termux pkg install -y

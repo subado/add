@@ -58,10 +58,6 @@ set_distro_specific() {
 	[ "$INSTALL" ] || die "DISTRO not match to any install command, set INSTALL manually"
 }
 
-get_overrides() {
-	[ -r "${OVERRIDES:=overrides/$DISTRO}" ] && . "$OVERRIDES"
-}
-
 installfail() {
 	exit 1
 }
@@ -194,7 +190,10 @@ if [ "$DISTRO" = "" ] || [ "$INSTALL" = "" ]; then
 	set_distro_specific # Set distro specific
 fi
 
-get_overrides # Get overrides specified for current distro
+# Get overrides specified for current distro
+[ -r "${OVERRIDES:=overrides/$DISTRO.sh}" ] && . "$OVERRIDES"
+
+[ -r "${PRE:=pre/$DISTRO.sh}" ] && . "$PRE" || true
 
 # Install base packages
 [ "$nobase" ] || install_pkgs "${BASEPKGS:=basepkgs/$DISTRO}"
@@ -205,4 +204,4 @@ get_overrides # Get overrides specified for current distro
 # Clone dots repo
 [ "$nodots" ] || { [ "$DOTS_REPO" ] && clone_dots; }
 
-[ -r "${POST:=post}" ] && . "$POST" || true
+[ -r "${POST:=post/$DISTRO.sh}" ] && . "$POST" || true
